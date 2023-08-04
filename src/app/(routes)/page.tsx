@@ -8,13 +8,13 @@ interface CronResponse {
 }
 
 export default async function Home() {
-  // const { data } = await axios.get<CronResponse>('http://localhost:3000/api/cron')
+  const { data } = await axios.get<CronResponse>('https://desvende.vercel.app/api/cron')
 
 
-  const answerString = 'PEDRO'
-  const answerArray = 'PEDRO'.split('')
-  // const answerString = data?.answer
-  // const answerArray = data?.answer.split('')
+  // const answerString = 'PEDRO'
+  // const answerArray = 'PEDRO'.split('')
+  const answerString = data?.answer
+  const answerArray = data?.answer.split('')
 
   // const cookieStore = cookies()
   // const theme = cookieStore.get('attempts')

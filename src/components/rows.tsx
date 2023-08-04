@@ -153,42 +153,42 @@ export function Rows({ answerArray, answerString }: RowProps) {
     return () => document.removeEventListener('keydown', handleKeyDownEvent)
   }, [handleKeyDownEvent, isFinished])
 
-  useEffect(() => {
-    const { attempts, startTime } = JSON.parse(localStorage.getItem('@desvende:attempts') as string) as LocalStorageData
+  // useEffect(() => {
+  //   const { attempts, startTime } = JSON.parse(localStorage.getItem('@desvende:attempts') as string) as LocalStorageData
 
-    if (attempts) {
-      const updatedRows = ROWS.map((row) => {
-        let hasSubmitted = attempts[row.id].length === 5
-        let finalAttempt = attempts[row.id]
+  //   if (attempts) {
+  //     const updatedRows = ROWS.map((row) => {
+  //       let hasSubmitted = attempts[row.id].length === 5
+  //       let finalAttempt = attempts[row.id]
 
-        row.letters.forEach((letter, index) => {
-          const newValue = attempts[row.id].split('')[index] ?? ''
-          letter.value = newValue
-        })
+  //       row.letters.forEach((letter, index) => {
+  //         const newValue = attempts[row.id].split('')[index] ?? ''
+  //         letter.value = newValue
+  //       })
 
-        return {
-          ...row,
-          hasSubmitted,
-          attempt: finalAttempt
-        }
-      })
-      setRows(updatedRows)
+  //       return {
+  //         ...row,
+  //         hasSubmitted,
+  //         attempt: finalAttempt
+  //       }
+  //     })
+  //     setRows(updatedRows)
 
-      const activeRowId = attempts.findIndex(attempt => attempt === '')
-      setActiveRowId(activeRowId)
+  //     const activeRowId = attempts.findIndex(attempt => attempt === '')
+  //     setActiveRowId(activeRowId)
 
-      const isCorrect = attempts.includes(answerString)
-      if (isCorrect) {
-        setIsFinished(true)
-        setIsCorrect(true)
-      }
+  //     const isCorrect = attempts.includes(answerString)
+  //     if (isCorrect) {
+  //       setIsFinished(true)
+  //       setIsCorrect(true)
+  //     }
 
-      const hasFinished = attempts.every(attempt => attempt.length >= 5)
-      if (attempts.length === 6 && hasFinished) {
-        setIsFinished(true)
-      }
-    }
-  }, [])
+  //     const hasFinished = attempts.every(attempt => attempt.length >= 5)
+  //     if (attempts.length === 6 && hasFinished) {
+  //       setIsFinished(true)
+  //     }
+  //   }
+  // }, [])
 
   return (
     <>

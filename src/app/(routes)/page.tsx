@@ -1,20 +1,14 @@
 import { getAnswer } from '@/actions/get-answer';
 import { Rows } from '@/components/rows';
-import axios from 'axios';
-import { cookies } from 'next/headers'
-
-interface CronResponse {
-  answer: string
-}
 
 export default async function Home() {
-  const { data } = await axios.get<CronResponse>('https://desvende.vercel.app/api/cron')
+  const { answer } = await getAnswer()
 
-
-  // const answerString = 'PEDRO'
-  // const answerArray = 'PEDRO'.split('')
-  const answerString = data?.answer
-  const answerArray = data?.answer.split('')
+  // let answerString = 'PEDRO'
+  // let answerArray = 'PEDRO'.split('')
+  
+  const answerString = answer
+  const answerArray = answer?.split('')
 
   // const cookieStore = cookies()
   // const theme = cookieStore.get('attempts')

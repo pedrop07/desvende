@@ -1,9 +1,19 @@
-import axios from "axios"
+import { prisma } from "@/lib/prisma"
 
-export async function getAnswer() {
-  const response = await axios.get('https://api.github.com/users/pedrop07/repos')
+interface Response {
+  answer: string
+}
+
+export async function getAnswer(): Promise<Response> {
+  const response = await prisma.answer.findUnique({
+    where: {
+      id: process.env.ANSWER_ID
+    }
+  })
+
+  const answer = response?.answer as string
   
   return {
-    repos: response
+    answer
   }
 }

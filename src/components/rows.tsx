@@ -6,10 +6,17 @@ import { useCallback, useEffect, useState } from 'react'
 import { tv } from "tailwind-variants";
 import { dictionary } from '../../dictionary';
 import toast from 'react-hot-toast';
+import Countdown from 'react-countdown';
+import { setCookie, parseCookies } from 'nookies'
 
 interface RowProps {
   answerArray: string[];
   answerString: string;
+}
+
+interface LocalStorageData {
+  attempts: string[];
+  startTime: number;
 }
 
 const letterStyle = tv({
@@ -32,8 +39,6 @@ export function Rows({ answerArray, answerString }: RowProps) {
   const [activeRowId, setActiveRowId] = useState(0)
   const [isFinished, setIsFinished] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
-
-  console.log(answerString)
 
   const handleActiveLetter = (letterId: number) => {
     if (letterId < 0 || letterId === rows[activeRowId].letters.length) return
@@ -113,7 +118,12 @@ export function Rows({ answerArray, answerString }: RowProps) {
     const hasFinished = attempts.every(attempt => attempt.length >= 5)
     if (hasFinished) setIsFinished(true)
 
-    // localStorage.setItem('@desvende:attempts', JSON.stringify(attempts))
+    // setCookie(null, 'attempts', JSON.stringify(attempts), {
+    //   maxAge: 60, // 8 Weeks
+    //   path: '/',
+    // })
+
+    // localStorage.setItem('@desvende:attempts', JSON.stringify(localStorageData))
 
     setActiveRowId((prevState) => prevState + 1)
   }
@@ -144,7 +154,7 @@ export function Rows({ answerArray, answerString }: RowProps) {
   }, [handleKeyDownEvent, isFinished])
 
   useEffect(() => {
-    const attempts: string[] = JSON.parse(localStorage.getItem('@desvende:attempts') as string)
+    const { attempts, startTime } = JSON.parse(localStorage.getItem('@desvende:attempts') as string) as LocalStorageData
 
     if (attempts) {
       const updatedRows = ROWS.map((row) => {
@@ -182,12 +192,36 @@ export function Rows({ answerArray, answerString }: RowProps) {
 
   return (
     <>
-      {/* {isCorrect && (
+      {isFinished && (
         <div>
-          <div>Parabéns, voce acertou a palavra do dia!</div>
-          <div>próxima palavra em 11:02:20</div>
+          {
+            isCorrect ?
+              (
+                <h2 className='text-2xl mb-4'>
+                  Parabéns, você acertou a palavra do dia!
+                </h2>
+              )
+              :
+              (
+                <div className='flex flex-col items-center mb-4'>
+                  <h2 className='text-2xl mb-2'>
+                    Você errou a palavra do dia :(
+                  </h2>
+                  <h3 className='text-xl'>Resposta: {answerString}</h3>
+                </div>
+              )
+          }
+          <div className='flex flex-col items-center'>
+            <span className='text-xl text-slate-300'>
+              próxima palavra em:
+            </span>
+            <Countdown
+              date={new Date().setHours(24, 0, 0, 0)}
+              className='text-3xl font-semibold'
+            />
+          </div>
         </div>
-      )} */}
+      )}
       {rows.map((row) => {
         return (
           <div

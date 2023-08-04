@@ -1,3 +1,4 @@
+import { getAnswer } from '@/actions/get-answer';
 import { Rows } from '@/components/rows';
 import axios from 'axios';
 import { cookies } from 'next/headers'
@@ -7,12 +8,13 @@ interface CronResponse {
 }
 
 export default async function Home() {
-  const { data } = await axios.get<CronResponse>('http://localhost:3000/api/cron')
+  // const { data } = await axios.get<CronResponse>('http://localhost:3000/api/cron')
 
-  // const answerString = 'PEDRO'
-  // const answerArray = 'PEDRO'.split('')
-  const answerString = data?.answer
-  const answerArray = data?.answer.split('')
+
+  const answerString = 'PEDRO'
+  const answerArray = 'PEDRO'.split('')
+  // const answerString = data?.answer
+  // const answerArray = data?.answer.split('')
 
   // const cookieStore = cookies()
   // const theme = cookieStore.get('attempts')

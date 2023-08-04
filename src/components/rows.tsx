@@ -40,6 +40,8 @@ export function Rows({ answerArray, answerString }: RowProps) {
   const [isFinished, setIsFinished] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
 
+  console.log(answerString)
+
   const handleActiveLetter = (letterId: number) => {
     if (letterId < 0 || letterId === rows[activeRowId].letters.length) return
 

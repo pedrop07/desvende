@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { dictionary } from "../../../../dictionary";
 import { prisma } from "@/lib/prisma";
 
-export default async function handler() {
+export async function GET() {
   try {
     const answer = dictionary[Math.floor(Math.random() * 867)].toUpperCase()
 

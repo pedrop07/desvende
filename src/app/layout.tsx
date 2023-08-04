@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import './globals.css'
 import type { Metadata } from 'next'
 import { Roboto_Flex as Roboto } from 'next/font/google'
+import { Toaster } from 'react-hot-toast'
 
 const roboto = Roboto({ subsets: ['latin'] })
 
@@ -17,7 +18,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={clsx(roboto.className, 'bg-indigo-950 text-gray-100')}>{children}</body>
+      <body className={clsx(roboto.className, 'bg-indigo-950 text-gray-100')}>
+        {children}
+        <Toaster
+          position="top-center"
+          reverseOrder={false}
+        />
+      </body>
     </html>
   )
 }

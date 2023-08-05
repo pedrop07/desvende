@@ -1,34 +1,57 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Desvende
 
-## Getting Started
+O Desvende é uma versão do popular jogo de navegador "Wordle", agora disponível em português brasileiro. O jogo é uma forma divertida e envolvente de exercitar seu cérebro e melhorar suas habilidades de palavras.
 
-First, run the development server:
+## Como Jogar
+1. O objetivo do jogo é adivinhar uma palavra de cinco letras dentro de um número limitado de tentativas.
+
+2. Cada tentativa consiste em digitar uma palavra de cinco letras no campo de entrada e pressionar "Enter".
+
+3. O jogo fornecerá feedback após cada tentativa, exemplo:
+- **Verde** indica que a letra existe na palavra e está na posição correta.
+- **Amarelo** indica que a letra existe na palavra e está na posição errada.
+- **Vermelho** indica que a letra não existe na palavra.
+
+4. Use as informações fornecidas para refinar suas suposições e adivinhar a palavra correta antes que suas tentativas se esgotem.
+
+5. Você ganha o jogo quando adivinhar a palavra correta em até seis tentativas.
+
+## Tecnologias Utilizadas
+- Next.js
+- Tailwind CSS
+- Prisma
+- SQLite
+
+## Instalação e Execução
+1. Certifique-se de ter o Node.js instalado em sua máquina.
+
+2. Clone este repositório em sua máquina local.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+git clone https://github.com/pedrop07/desvende.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Navegue até o diretório do projeto.
+```bash
+cd desvende
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. Instale as dependências do projeto.
+```bash
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+5. Inicie o servidor em ambiente de Desenvolvimento.
+```bash
+npm run dev
+```
 
-## Learn More
+6. Abra o jogo em seu navegador, acessando [http://localhost:3000](http://localhost:3000).
 
-To learn more about Next.js, take a look at the following resources:
+## Contribuição
+Contribuições são bem-vindas! Se você encontrar problemas, bugs ou tiver sugestões para melhorar o jogo, sinta-se à vontade para abrir uma [issue](https://github.com/pedrop07/desvende/issues) ou enviar um pull request.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Licença
+Este projeto é licenciado sob a Licença XYZ.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Divirta-se jogando o Wordle em Português (Brasil)! Se você tiver alguma dúvida ou precisar de ajuda, entre em contato conosco em contato@wordle-em-portugues.com. Agradecemos por jogar e esperamos que você se divirta muito com o jogo!

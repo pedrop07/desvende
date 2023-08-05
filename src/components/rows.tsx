@@ -104,6 +104,17 @@ export function Rows({ answerArray, answerString }: RowProps) {
     newState[activeRowId].hasSubmitted = true
     setRows(newState)
 
+    const attempts = rows.map((row) => {
+      return row.letters.map(({ value }) => value).join('')
+    })
+
+    const localStorageData = {
+      attempts: attempts,
+      expires: new Date().setHours(24, 0, 0, 0)
+    }
+    
+    localStorage.setItem('@desvende:attempts', JSON.stringify(localStorageData))
+
     if (attempt === removeAccents(answerString)) {
       setIsFinished(true)
       setIsCorrect(true)
@@ -111,19 +122,8 @@ export function Rows({ answerArray, answerString }: RowProps) {
       return
     }
 
-    const attempts = rows.map((row) => {
-      return row.letters.map(({ value }) => value).join('')
-    })
-
     const hasFinished = attempts.every(attempt => attempt.length >= 5);
     if (hasFinished) setIsFinished(true);
-
-    const localStorageData = {
-      attempts: attempts,
-      expires: new Date().setHours(24, 0, 0, 0)
-    }
-
-    localStorage.setItem('@desvende:attempts', JSON.stringify(localStorageData))
 
     setActiveRowId((prevState) => prevState + 1)
   }

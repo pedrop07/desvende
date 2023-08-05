@@ -2,17 +2,21 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { dictionary } from '../../dictionary';
-import { InitialStateData } from '@/app/(routes)/page';
 import { removeAccents } from '@/utils/removeAccents';
 import { tv } from "tailwind-variants";
-import { setCookie } from 'nookies'
 import toast from 'react-hot-toast';
 import Countdown from 'react-countdown';
+import { ROWS } from '@/constants/rows';
+import { RowsData } from '@/types/rows';
+
+interface LocalStorageData {
+  attempts: string[];
+  startTime: number;
+}
 
 interface RowProps {
   answerArray: string[];
   answerString: string;
-  initialState: InitialStateData;
 }
 
 const letterStyle = tv({
@@ -30,11 +34,11 @@ const letterStyle = tv({
   }
 })
 
-export function Rows({ answerArray, answerString, initialState }: RowProps) {
-  const [rows, setRows] = useState(initialState.rows)
-  const [activeRowId, setActiveRowId] = useState(initialState.activeRowId)
-  const [isFinished, setIsFinished] = useState(initialState.isFinished)
-  const [isCorrect, setIsCorrect] = useState(initialState.isCorrect)
+export function Rows({ answerArray, answerString }: RowProps) {
+  const [rows, setRows] = useState(ROWS)
+  const [activeRowId, setActiveRowId] = useState(0)
+  const [isFinished, setIsFinished] = useState(false)
+  const [isCorrect, setIsCorrect] = useState(false)
 
   const handleActiveLetter = (letterId: number) => {
     if (letterId < 0 || letterId === rows[activeRowId].letters.length) return
@@ -114,16 +118,12 @@ export function Rows({ answerArray, answerString, initialState }: RowProps) {
     const hasFinished = attempts.every(attempt => attempt.length >= 5);
     if (hasFinished) setIsFinished(true);
 
-    const date = new Date()
-    date.setHours(24, 0, 0, 0)
+    const localStorageData = {
+      attempts: attempts,
+      startTime: new Date().getTime()
+    }
 
-    const millisecondsDifference = date.getTime() - new Date().getTime();
-    const secondsToTheNextDay = Math.floor(millisecondsDifference / 1000);
-
-    setCookie(null, 'attempts', JSON.stringify(attempts), {
-      maxAge: secondsToTheNextDay, // seconds left for the next day
-      path: '/',
-    })
+    localStorage.setItem('@desvende:attempts', JSON.stringify(localStorageData))
 
     setActiveRowId((prevState) => prevState + 1)
   }
@@ -152,6 +152,51 @@ export function Rows({ answerArray, answerString, initialState }: RowProps) {
     if (isFinished) document.removeEventListener('keydown', handleKeyDownEvent)
     return () => document.removeEventListener('keydown', handleKeyDownEvent)
   }, [handleKeyDownEvent, isFinished])
+
+  useEffect(() => {
+    const localStorageAttempts = localStorage.getItem('@desvende:attempts')
+
+    if (localStorageAttempts) {
+      const { attempts, startTime } = JSON.parse(localStorageAttempts) as LocalStorageData;
+
+      if (new Date().setHours(23, 59, 59, 0) <= startTime) {
+        localStorage.removeItem('@desvende:attempts')
+      } else {
+        const newState: RowsData[] = JSON.parse(JSON.stringify(ROWS));
+
+        const updatedRows = newState.map((row) => {
+          let hasSubmitted = attempts[row.id].length === 5
+          let finalAttempt = attempts[row.id]
+
+          row.letters.forEach((letter, index) => {
+            const newValue = attempts[row.id].split('')[index] ?? ''
+            letter.value = newValue
+          })
+
+          return {
+            ...row,
+            hasSubmitted,
+            attempt: finalAttempt
+          }
+        });
+        setRows(updatedRows)
+
+        const activeRowId = attempts.findIndex(attempt => attempt === '');
+        setActiveRowId(activeRowId);
+
+        const isCorrect = attempts.includes(answerString);
+        if (isCorrect) {
+          setIsFinished(true);
+          setIsCorrect(true);
+        }
+
+        const hasFinished = attempts.every(attempt => attempt.length >= 5);
+        if (attempts.length === 6 && hasFinished) {
+          setIsFinished(true);
+        }
+      }
+    }
+  }, [])
 
   return (
     <>

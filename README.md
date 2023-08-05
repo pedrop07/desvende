@@ -50,8 +50,3 @@ npm run dev
 
 ## Contribuição
 Contribuições são bem-vindas! Se você encontrar problemas, bugs ou tiver sugestões para melhorar o jogo, sinta-se à vontade para abrir uma [issue](https://github.com/pedrop07/desvende/issues) ou enviar um pull request.
-
-Licença
-Este projeto é licenciado sob a Licença XYZ.
-
-Divirta-se jogando o Wordle em Português (Brasil)! Se você tiver alguma dúvida ou precisar de ajuda, entre em contato conosco em contato@wordle-em-portugues.com. Agradecemos por jogar e esperamos que você se divirta muito com o jogo!

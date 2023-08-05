@@ -11,7 +11,7 @@ import { RowsData } from '@/types/rows';
 
 interface LocalStorageData {
   attempts: string[];
-  startTime: number;
+  expires: number;
 }
 
 interface RowProps {
@@ -120,7 +120,7 @@ export function Rows({ answerArray, answerString }: RowProps) {
 
     const localStorageData = {
       attempts: attempts,
-      startTime: new Date().getTime()
+      expires: new Date().setHours(24, 0, 0, 0)
     }
 
     localStorage.setItem('@desvende:attempts', JSON.stringify(localStorageData))
@@ -157,9 +157,9 @@ export function Rows({ answerArray, answerString }: RowProps) {
     const localStorageAttempts = localStorage.getItem('@desvende:attempts')
 
     if (localStorageAttempts) {
-      const { attempts, startTime } = JSON.parse(localStorageAttempts) as LocalStorageData;
+      const { attempts, expires } = JSON.parse(localStorageAttempts) as LocalStorageData;
 
-      if (new Date().setHours(23, 59, 59, 0) <= startTime) {
+      if (Date.now() >= expires) {
         localStorage.removeItem('@desvende:attempts')
       } else {
         const newState: RowsData[] = JSON.parse(JSON.stringify(ROWS));

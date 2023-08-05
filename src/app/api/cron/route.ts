@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const answer = dictionary[Math.floor(Math.random() * 867)].toUpperCase()
+    const answer = dictionary[Math.floor(Math.random() * 914)].toUpperCase()
 
     await prisma.answer.update({
       where: {

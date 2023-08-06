@@ -187,10 +187,11 @@ export function Rows({ answerArray, answerString }: RowProps) {
         const activeRowId = attempts.findIndex(attempt => attempt === '');
         setActiveRowId(activeRowId);
 
-        const isCorrect = attempts.includes(answerString);
+        const isCorrect = attempts.includes(removeAccents(answerString));
         if (isCorrect) {
           setIsFinished(true);
           setIsCorrect(true);
+          setActiveRowId(7);
         }
 
         const hasFinished = attempts.every(attempt => attempt.length >= 5);

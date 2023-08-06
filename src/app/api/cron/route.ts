@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server"
-import { dictionary } from "../../../../dictionary";
+import { dictionaryOfPossibleAnswers } from "../../../../dictionary-of-possible-answers";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const answer = dictionary[Math.floor(Math.random() * 914)].toUpperCase()
+    const answer = dictionaryOfPossibleAnswers[Math.floor(Math.random() * 914)].toUpperCase()
 
     await prisma.answer.update({
       where: {

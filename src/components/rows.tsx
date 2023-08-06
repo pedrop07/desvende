@@ -1,13 +1,13 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { dictionary } from '../../dictionary';
 import { removeAccents } from '@/utils/removeAccents';
 import { tv } from "tailwind-variants";
 import toast from 'react-hot-toast';
 import Countdown from 'react-countdown';
 import { ROWS } from '@/constants/rows';
 import { RowsData } from '@/types/rows';
+import { extensiveDictionary } from '../../extensive-dictionary';
 
 interface LocalStorageData {
   attempts: string[];
@@ -67,6 +67,7 @@ export function Rows({ answerArray, answerString }: RowProps) {
 
   const handleClickLetter = (letterId: number, rowId: number) => {
     if (rowId !== activeRowId) return
+    if (isFinished) return
     handleActiveLetter(letterId)
   }
 
@@ -86,7 +87,9 @@ export function Rows({ answerArray, answerString }: RowProps) {
       return;
     }
 
-    if (!dictionary.includes(attempt.toLowerCase())) {
+    const wordExists = extensiveDictionary.find((word) => removeAccents(word) === attempt.toLowerCase())
+
+    if (!wordExists) {
       toast('essa palavra não é aceita', {
         style: {
           padding: '8px 12px',
@@ -112,7 +115,7 @@ export function Rows({ answerArray, answerString }: RowProps) {
       attempts: attempts,
       expires: new Date().setHours(24, 0, 0, 0)
     }
-    
+
     localStorage.setItem('@desvende:attempts', JSON.stringify(localStorageData))
 
     if (attempt === removeAccents(answerString)) {
@@ -244,6 +247,11 @@ export function Rows({ answerArray, answerString }: RowProps) {
 
               if (row.hasSubmitted && letter.value !== '') {
                 position = 'wrong'
+                const attempt = extensiveDictionary.find((word) =>
+                  removeAccents(word) === row.attempt.toLowerCase()
+                ) as string
+
+                const attemptArray = attempt.toUpperCase().split('')
 
                 if (removeAccents(answerString).includes(letter.value)) {
                   position = 'near'
@@ -251,8 +259,9 @@ export function Rows({ answerArray, answerString }: RowProps) {
 
                 if (letter.value === removeAccents(answerArray[index])) {
                   position = 'correct'
-                  value = answerArray[index]
                 }
+
+                value = attemptArray[index]
               }
 
               const isActive = row.id === activeRowId

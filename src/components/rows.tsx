@@ -171,10 +171,13 @@ export function Rows({ answerArray, answerString }: RowProps) {
           let hasSubmitted = attempts[row.id].length === 5
           let finalAttempt = attempts[row.id]
 
-          row.letters.forEach((letter, index) => {
-            const newValue = attempts[row.id].split('')[index] ?? ''
-            letter.value = newValue
-          })
+          const wordExists = extensiveDictionary.find((word) => removeAccents(word) === attempts[row.id].toLowerCase())
+          if(attempts[row.id].length === 5 && wordExists) {
+            row.letters.forEach((letter, index) => {
+              const newValue = attempts[row.id].split('')[index]
+              letter.value = newValue.toUpperCase()
+            })
+          }
 
           return {
             ...row,
@@ -253,6 +256,7 @@ export function Rows({ answerArray, answerString }: RowProps) {
                 ) as string
 
                 const attemptArray = attempt.toUpperCase().split('')
+                value = attemptArray[index]
 
                 if (removeAccents(answerString).includes(letter.value)) {
                   position = 'near'
@@ -261,8 +265,6 @@ export function Rows({ answerArray, answerString }: RowProps) {
                 if (letter.value === removeAccents(answerArray[index])) {
                   position = 'correct'
                 }
-
-                value = attemptArray[index]
               }
 
               const isActive = row.id === activeRowId

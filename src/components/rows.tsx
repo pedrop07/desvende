@@ -241,7 +241,7 @@ export function Rows({ answerArray, answerString }: RowProps) {
           {
             isCorrect ?
               (
-                <h2 className='text-2xl mb-4'>
+                <h2 className='text-2xl mb-4 text-center'>
                   Parabéns, você acertou a palavra do dia!
                 </h2>
               ) :
@@ -265,7 +265,7 @@ export function Rows({ answerArray, answerString }: RowProps) {
           </div>
         </div>
       )}
-      <div className='flex justify-center items-center flex-col gap-3'>
+      <div className='flex justify-center items-center flex-col gap-3 mt-4'>
         {rows.map((row) => {
           return (
             <div

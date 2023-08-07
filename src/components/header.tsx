@@ -7,7 +7,7 @@ const baloo2 = Baloo_2({ subsets: ['latin'] })
 
 export function Header() {
   return (
-    <header className={clsx(baloo2.className, 'text-4xl font-semibold flex justify-center mt-7 mb-28')}>
+    <header className={clsx(baloo2.className, 'text-4xl font-semibold flex justify-center mt-16 mb-14')}>
       <div className='flex items-center gap-4'>
         DESVENDE
         <Link

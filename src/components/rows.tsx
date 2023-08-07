@@ -8,6 +8,27 @@ import Countdown from 'react-countdown';
 import { ROWS } from '@/constants/rows';
 import { RowsData } from '@/types/rows';
 import { extensiveDictionary } from '../../extensive-dictionary';
+import { wordExistsInDictionary } from '@/utils/wordExistsInDictionary';
+
+function containsNonStringValue(array: string[]) {
+  for (let i = 0; i < array.length; i++) {
+    if (typeof array[i] !== "string") {
+      return true;
+    }
+  }
+  return false;
+}
+
+
+function containsEmptyValues(array: string[]) {
+  let hasEmptyValue = false
+
+  array.forEach((value, index) => {
+    if (value === '' && array[index + 1] && index !== array.length) hasEmptyValue = true
+  })
+
+  return hasEmptyValue
+}
 
 interface LocalStorageData {
   attempts: string[];
@@ -87,9 +108,7 @@ export function Rows({ answerArray, answerString }: RowProps) {
       return;
     }
 
-    const wordExists = extensiveDictionary.find((word) => removeAccents(word) === attempt.toLowerCase())
-
-    if (!wordExists) {
+    if (!wordExistsInDictionary(attempt)) {
       toast('essa palavra não é aceita', {
         style: {
           padding: '8px 12px',
@@ -162,7 +181,20 @@ export function Rows({ answerArray, answerString }: RowProps) {
     if (localStorageAttempts) {
       const { attempts, expires } = JSON.parse(localStorageAttempts) as LocalStorageData;
 
-      if (Date.now() >= expires) {
+      if (!Array.isArray(attempts) || containsNonStringValue(attempts) || containsEmptyValues(attempts)) {
+        localStorage.removeItem('@desvende:attempts')
+        return
+      }
+
+      let wordDoesNotExist = false
+
+      attempts.forEach((attempt) => {
+        if (!wordExistsInDictionary(attempt) && attempt !== '') {
+          wordDoesNotExist = true
+        }
+      })
+
+      if (Date.now() >= expires || attempts.length !== 6 || wordDoesNotExist) {
         localStorage.removeItem('@desvende:attempts')
       } else {
         const newState: RowsData[] = JSON.parse(JSON.stringify(ROWS));
@@ -171,13 +203,10 @@ export function Rows({ answerArray, answerString }: RowProps) {
           let hasSubmitted = attempts[row.id].length === 5
           let finalAttempt = attempts[row.id]
 
-          const wordExists = extensiveDictionary.find((word) => removeAccents(word) === attempts[row.id].toLowerCase())
-          if(attempts[row.id].length === 5 && wordExists) {
-            row.letters.forEach((letter, index) => {
-              const newValue = attempts[row.id].split('')[index]
-              letter.value = newValue.toUpperCase()
-            })
-          }
+          row.letters.forEach((letter, index) => {
+            const newValue = attempts[row.id].split('')[index]
+            letter.value = newValue
+          })
 
           return {
             ...row,
@@ -215,8 +244,7 @@ export function Rows({ answerArray, answerString }: RowProps) {
                 <h2 className='text-2xl mb-4'>
                   Parabéns, você acertou a palavra do dia!
                 </h2>
-              )
-              :
+              ) :
               (
                 <div className='flex flex-col items-center mb-4'>
                   <h2 className='text-2xl mb-2'>
@@ -237,52 +265,54 @@ export function Rows({ answerArray, answerString }: RowProps) {
           </div>
         </div>
       )}
-      {rows.map((row) => {
-        return (
-          <div
-            key={row.id}
-            className='flex justify-center items-center gap-3'
-            data-active={row.id === activeRowId}
-          >
-            {row.letters.map((letter, index) => {
-              let position: "correct" | "wrong" | "near" | undefined
+      <div className='flex justify-center items-center flex-col gap-3'>
+        {rows.map((row) => {
+          return (
+            <div
+              key={row.id}
+              className='flex justify-center items-center gap-3'
+              data-active={row.id === activeRowId}
+            >
+              {row.letters.map((letter, index) => {
+                let position: "correct" | "wrong" | "near" | undefined
 
-              let value = letter.value
+                let value = letter.value
 
-              if (row.hasSubmitted && letter.value !== '') {
-                position = 'wrong'
-                const attempt = extensiveDictionary.find((word) =>
-                  removeAccents(word) === row.attempt.toLowerCase()
-                ) as string
+                if (row.hasSubmitted && letter.value !== '') {
+                  position = 'wrong'
+                  const attempt = extensiveDictionary.find((word) =>
+                    removeAccents(word) === row.attempt.toLowerCase()
+                  ) as string
 
-                const attemptArray = attempt.toUpperCase().split('')
-                value = attemptArray[index]
+                  const attemptArray = attempt.toUpperCase().split('')
+                  value = attemptArray[index]
 
-                if (removeAccents(answerString).includes(letter.value)) {
-                  position = 'near'
+                  if (removeAccents(answerString).includes(letter.value)) {
+                    position = 'near'
+                  }
+
+                  if (letter.value === removeAccents(answerArray[index])) {
+                    position = 'correct'
+                  }
                 }
 
-                if (letter.value === removeAccents(answerArray[index])) {
-                  position = 'correct'
-                }
-              }
+                const isActive = row.id === activeRowId
 
-              const isActive = row.id === activeRowId
-
-              return (
-                <div
-                  key={letter.id}
-                  className={letterStyle({ active: isActive, color: position })}
-                  data-active={letter.active}
-                  onClick={() => handleClickLetter(letter.id, row.id)}
-                >
-                  {value}
-                </div>
-              )
-            })}
-          </div>
-        )
-      })}
+                return (
+                  <div
+                    key={letter.id}
+                    className={letterStyle({ active: isActive, color: position })}
+                    data-active={letter.active}
+                    onClick={() => handleClickLetter(letter.id, row.id)}
+                  >
+                    {value}
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })}
+      </div>
     </>
   )
 }

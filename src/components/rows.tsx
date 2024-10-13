@@ -19,7 +19,6 @@ function containsNonStringValue(array: string[]) {
   return false;
 }
 
-
 function containsEmptyValues(array: string[]) {
   let hasEmptyValue = false
 
@@ -61,29 +60,52 @@ export function Rows({ answerArray, answerString }: RowProps) {
   const [isFinished, setIsFinished] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
 
-  const handleActiveLetter = (letterId: number) => {
-    if (letterId < 0 || letterId === rows[activeRowId].letters.length) return
-
-    const newState = [...rows]
-    newState[activeRowId].letters.forEach((letter) => {
-      letter.active = false
-      if (letter.id === letterId) letter.active = true
-    })
-
-    setRows(newState)
+  const getActiveLetterIndex = () => {
+    const letters = rows[activeRowId].letters
+    const activeLetterIndex = letters.findIndex(({ active }) => active === true)
+    return activeLetterIndex
   }
 
-  const handleChangeLetterValue = (letterId: number, value: string) => {
-    const newState = [...rows]
+  const isInvalidLetterId = (letterId: number) => !(letterId >= 0 && letterId < rows[activeRowId].letters.length)
+  
+  const handleActiveLetter = (letterId: number) => {
+    if (isInvalidLetterId(letterId)) return
 
-    if (value === '' && newState[activeRowId].letters[letterId].value === '' && letterId !== 0) {
-      newState[activeRowId].letters[letterId - 1].value = value
+    const newRows = [...rows]
+    const activeRow = newRows[activeRowId]
+    const activeLetterId = getActiveLetterIndex()
+
+    activeRow.letters[activeLetterId].active = false
+    activeRow.letters[letterId].active = true
+
+    setRows(newRows)
+  }
+
+  const handleChangeLetterValue = (letterId: number, newValue: string) => {
+    const newRows = [...rows]
+    const activeRow = newRows[activeRowId]
+
+    const isCurrentLetterEmpty  = newRows[activeRowId].letters[letterId].value === ""
+    const isNewValueEmpty = newValue === ''
+    const isNotFirstLetter = letterId !== 0
+
+    const removePreviousLetterValue = () => {
+      activeRow.letters[letterId - 1].value = ""
       handleActiveLetter(letterId - 1)
-    } else {
-      newState[activeRowId].letters[letterId].value = value
     }
+    
+    const updateCurrentLetterValue = () => {
+      activeRow.letters[letterId].value = newValue
+    }
+    
+    if (isNewValueEmpty && isCurrentLetterEmpty && isNotFirstLetter) {
+      removePreviousLetterValue()
+      return
+    } 
 
-    setRows(newState)
+    updateCurrentLetterValue()
+
+    setRows(newRows)
   }
 
   const handleClickLetter = (letterId: number, rowId: number) => {
@@ -153,14 +175,18 @@ export function Rows({ answerArray, answerString }: RowProps) {
   const handleKeyDownEvent = useCallback((event: KeyboardEvent) => {
     if (activeRowId === rows.length) return
 
-    const activeLetterIndex = rows[activeRowId].letters.findIndex(({ active }) => active === true)
+    const letters = rows[activeRowId].letters
+    const activeLetterIndex = getActiveLetterIndex()
+
     if (event.code === 'ArrowRight') handleActiveLetter(activeLetterIndex + 1)
 
     if (event.code === 'ArrowLeft') handleActiveLetter(activeLetterIndex - 1)
 
     if (event.code.includes('Key')) {
       handleChangeLetterValue(activeLetterIndex, event.key.toUpperCase())
-      handleActiveLetter(activeLetterIndex + 1)
+
+      const nextEmptyLetterIndex = letters.findIndex(({ value }) => !value)
+      if (nextEmptyLetterIndex !== -1) handleActiveLetter(nextEmptyLetterIndex)
     }
 
     if (event.code === 'Backspace') handleChangeLetterValue(activeLetterIndex, '')
@@ -194,40 +220,40 @@ export function Rows({ answerArray, answerString }: RowProps) {
 
       if (Date.now() >= expires || attempts.length !== 6 || wordDoesNotExist) {
         localStorage.removeItem('@desvende:attempts')
-      } else {
-        const newState: RowsData[] = JSON.parse(JSON.stringify(ROWS));
+        return
+      }
+      const newState: RowsData[] = JSON.parse(JSON.stringify(ROWS));
 
-        const updatedRows = newState.map((row) => {
-          let hasSubmitted = attempts[row.id].length === 5
-          let finalAttempt = attempts[row.id]
+      const updatedRows = newState.map((row) => {
+        let hasSubmitted = attempts[row.id].length === 5
+        let finalAttempt = attempts[row.id]
 
-          row.letters.forEach((letter, index) => {
-            const newValue = attempts[row.id].split('')[index]
-            letter.value = newValue
-          })
+        row.letters.forEach((letter, index) => {
+          const newValue = attempts[row.id].split('')[index]
+          letter.value = newValue
+        })
 
-          return {
-            ...row,
-            hasSubmitted,
-            attempt: finalAttempt
-          }
-        });
-        setRows(updatedRows)
-
-        const activeRowId = attempts.findIndex(attempt => attempt === '');
-        setActiveRowId(activeRowId);
-
-        const isCorrect = attempts.includes(removeAccents(answerString));
-        if (isCorrect) {
-          setIsFinished(true);
-          setIsCorrect(true);
-          setActiveRowId(7);
+        return {
+          ...row,
+          hasSubmitted,
+          attempt: finalAttempt
         }
+      });
+      setRows(updatedRows)
 
-        const hasFinished = attempts.every(attempt => attempt.length >= 5);
-        if (attempts.length === 6 && hasFinished) {
-          setIsFinished(true);
-        }
+      const activeRowId = attempts.findIndex(attempt => attempt === '');
+      setActiveRowId(activeRowId);
+
+      const isCorrect = attempts.includes(removeAccents(answerString));
+      if (isCorrect) {
+        setIsFinished(true);
+        setIsCorrect(true);
+        setActiveRowId(7);
+      }
+
+      const hasFinished = attempts.every(attempt => attempt.length >= 5);
+      if (attempts.length === 6 && hasFinished) {
+        setIsFinished(true);
       }
     }
   }, [])

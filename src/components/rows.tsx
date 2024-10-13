@@ -4,11 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import { removeAccents } from "@/utils/removeAccents";
 import { tv } from "tailwind-variants";
 import toast from "react-hot-toast";
-import Countdown from "react-countdown";
 import { ROWS } from "@/constants/rows";
 import type { Row } from "@/types/types";
 import { acceptedAnswers } from "../../constants/accepted-answers";
 import { isNotAcceptedWord } from "@/utils/isNotAcceptedWord";
+import { Result } from "./result";
 
 function containsNonStringValue(array: string[]) {
 	for (let i = 0; i < array.length; i++) {
@@ -263,22 +263,7 @@ export function Rows({ answerArray, answerString }: RowProps) {
 
 	return (
 		<>
-			{isFinished && (
-				<div>
-					{isCorrect ? (
-						<h2 className="text-2xl mb-4 text-center">Parabéns, você acertou a palavra do dia!</h2>
-					) : (
-						<div className="flex flex-col items-center mb-4">
-							<h2 className="text-2xl mb-2">Você errou a palavra do dia :(</h2>
-							<h3 className="text-xl">Resposta: {answerString}</h3>
-						</div>
-					)}
-					<div className="flex flex-col items-center">
-						<span className="text-xl text-slate-300">próxima palavra em:</span>
-						<Countdown date={new Date().setHours(24, 0, 0, 0)} className="text-3xl font-semibold" />
-					</div>
-				</div>
-			)}
+			{isFinished && <Result answer={answerString} isCorrect={isCorrect} />}
 			<div className="flex justify-center items-center flex-col gap-3 mt-4">
 				{rows.map((row) => {
 					return (

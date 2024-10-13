@@ -19,8 +19,6 @@ O Desvende é uma versão do popular jogo de navegador "Wordle", agora disponív
 ## Tecnologias Utilizadas
 - Next.js
 - Tailwind CSS
-- Prisma
-- SQLite
 
 ## Instalação e Execução
 1. Certifique-se de ter o Node.js instalado em sua máquina.

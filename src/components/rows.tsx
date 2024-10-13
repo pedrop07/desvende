@@ -1,342 +1,328 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect, useState } from 'react'
-import { removeAccents } from '@/utils/removeAccents';
+import { useCallback, useEffect, useState } from "react";
+import { removeAccents } from "@/utils/removeAccents";
 import { tv } from "tailwind-variants";
-import toast from 'react-hot-toast';
-import Countdown from 'react-countdown';
-import { ROWS } from '@/constants/rows';
-import { RowsData } from '@/types/rows';
-import { acceptedAnswers } from '../../constants/accepted-answers';
-import { isNotAcceptedWord } from '@/utils/isNotAcceptedWord';
+import toast from "react-hot-toast";
+import Countdown from "react-countdown";
+import { ROWS } from "@/constants/rows";
+import type { Row } from "@/types/types";
+import { acceptedAnswers } from "../../constants/accepted-answers";
+import { isNotAcceptedWord } from "@/utils/isNotAcceptedWord";
 
 function containsNonStringValue(array: string[]) {
-  for (let i = 0; i < array.length; i++) {
-    if (typeof array[i] !== "string") {
-      return true;
-    }
-  }
-  return false;
+	for (let i = 0; i < array.length; i++) {
+		if (typeof array[i] !== "string") {
+			return true;
+		}
+	}
+	return false;
 }
 
 function containsEmptyValues(array: string[]) {
-  let hasEmptyValue = false
+	let hasEmptyValue = false;
 
-  array.forEach((value, index) => {
-    if (value === '' && array[index + 1] && index !== array.length) hasEmptyValue = true
-  })
+	array.forEach((value, index) => {
+		if (value === "" && array[index + 1] && index !== array.length) hasEmptyValue = true;
+	});
 
-  return hasEmptyValue
+	return hasEmptyValue;
 }
 
 interface LocalStorageData {
-  attempts: string[];
-  expires: number;
+	attempts: string[];
+	expires: number;
 }
 
 interface RowProps {
-  answerArray: string[];
-  answerString: string;
+	answerArray: string[];
+	answerString: string;
 }
 
 const letterStyle = tv({
-  base: 'w-[77px] h-[77px] text-4xl p-3 font-bold text-white flex justify-center items-center rounded-md',
-  variants: {
-    active: {
-      true: 'cursor-pointer data-[active=true]:border-violet-400 data-[active=true]:border-b-8 border-2 border-violet-600',
-      false: 'bg-indigo-900'
-    },
-    color: {
-      correct: 'bg-emerald-500',
-      wrong: 'bg-rose-500',
-      near: 'bg-yellow-400'
-    }
-  }
-})
+	base: "w-[77px] h-[77px] text-4xl p-3 font-bold text-white flex justify-center items-center rounded-md",
+	variants: {
+		active: {
+			true: "cursor-pointer data-[active=true]:border-violet-400 data-[active=true]:border-b-8 border-2 border-violet-600",
+			false: "bg-indigo-900",
+		},
+		color: {
+			correct: "bg-emerald-500",
+			wrong: "bg-rose-500",
+			near: "bg-yellow-400",
+		},
+	},
+});
 
 export function Rows({ answerArray, answerString }: RowProps) {
-  const [rows, setRows] = useState(ROWS)
-  const [activeRowId, setActiveRowId] = useState(0)
-  const [isFinished, setIsFinished] = useState(false)
-  const [isCorrect, setIsCorrect] = useState(false)
+	const [rows, setRows] = useState(ROWS);
+	const [activeRowId, setActiveRowId] = useState(0);
+	const [isFinished, setIsFinished] = useState(false);
+	const [isCorrect, setIsCorrect] = useState(false);
 
-  const getActiveLetterIndex = () => {
-    const letters = rows[activeRowId].letters
-    const activeLetterIndex = letters.findIndex(({ active }) => active === true)
-    return activeLetterIndex
-  }
+	const getActiveLetterIndex = () => {
+		const letters = rows[activeRowId].letters;
+		const activeLetterIndex = letters.findIndex(({ active }) => active === true);
+		return activeLetterIndex;
+	};
 
-  const isInvalidLetterId = (letterId: number) => !(letterId >= 0 && letterId < rows[activeRowId].letters.length)
-  
-  const handleActiveLetter = (letterId: number) => {
-    if (isInvalidLetterId(letterId)) return
+	const isInvalidLetterId = (letterId: number) => !(letterId >= 0 && letterId < rows[activeRowId].letters.length);
 
-    const newRows = [...rows]
-    const activeRow = newRows[activeRowId]
-    const activeLetterId = getActiveLetterIndex()
+	const handleActiveLetter = (letterId: number) => {
+		if (isInvalidLetterId(letterId)) return;
 
-    activeRow.letters[activeLetterId].active = false
-    activeRow.letters[letterId].active = true
+		const newRows = [...rows];
+		const activeRow = newRows[activeRowId];
+		const activeLetterId = getActiveLetterIndex();
 
-    setRows(newRows)
-  }
+		activeRow.letters[activeLetterId].active = false;
+		activeRow.letters[letterId].active = true;
 
-  const handleChangeLetterValue = (letterId: number, newValue: string) => {
-    const newRows = [...rows]
-    const activeRow = newRows[activeRowId]
+		setRows(newRows);
+	};
 
-    const isCurrentLetterEmpty  = newRows[activeRowId].letters[letterId].value === ""
-    const isNewValueEmpty = newValue === ''
-    const isNotFirstLetter = letterId !== 0
+	const handleChangeLetterValue = (letterId: number, newValue: string) => {
+		const newRows = [...rows];
+		const activeRow = newRows[activeRowId];
 
-    const removePreviousLetterValue = () => {
-      activeRow.letters[letterId - 1].value = ""
-      handleActiveLetter(letterId - 1)
-    }
-    
-    const updateCurrentLetterValue = () => {
-      activeRow.letters[letterId].value = newValue
-    }
-    
-    if (isNewValueEmpty && isCurrentLetterEmpty && isNotFirstLetter) {
-      removePreviousLetterValue()
-      return
-    } 
+		const isCurrentLetterEmpty = newRows[activeRowId].letters[letterId].value === "";
+		const isNewValueEmpty = newValue === "";
+		const isNotFirstLetter = letterId !== 0;
 
-    updateCurrentLetterValue()
+		const removePreviousLetterValue = () => {
+			activeRow.letters[letterId - 1].value = "";
+			handleActiveLetter(letterId - 1);
+		};
 
-    setRows(newRows)
-  }
+		const updateCurrentLetterValue = () => {
+			activeRow.letters[letterId].value = newValue;
+		};
 
-  const handleClickLetter = (letterId: number, rowId: number) => {
-    if (rowId !== activeRowId) return
-    if (isFinished) return
-    handleActiveLetter(letterId)
-  }
+		if (isNewValueEmpty && isCurrentLetterEmpty && isNotFirstLetter) {
+			removePreviousLetterValue();
+			return;
+		}
 
-  const handleSubmit = () => {
-    let attempt = rows[activeRowId].letters.map(({ value }) => value).join('')
+		updateCurrentLetterValue();
 
-    if (attempt.length < 5) {
-      toast('a palavra deve ter 5 letras', {
-        style: {
-          padding: '8px 12px',
-          color: '#fff',
-          fontWeight: '600',
-          fontSize: '18px',
-          backgroundColor: '#7C3AED'
-        }
-      });
-      return;
-    }
+		setRows(newRows);
+	};
 
-    if (isNotAcceptedWord(attempt)) {
-      toast('essa palavra não é aceita', {
-        style: {
-          padding: '8px 12px',
-          color: '#fff',
-          fontWeight: '600',
-          fontSize: '18px',
-          backgroundColor: '#7C3AED'
-        }
-      });
-      return;
-    }
+	const handleClickLetter = (letterId: number, rowId: number) => {
+		if (rowId !== activeRowId) return;
+		if (isFinished) return;
+		handleActiveLetter(letterId);
+	};
 
-    const newState = [...rows]
-    newState[activeRowId].attempt = attempt
-    newState[activeRowId].hasSubmitted = true
-    setRows(newState)
+	const handleSubmit = () => {
+		const attempt = rows[activeRowId].letters.map(({ value }) => value).join("");
 
-    const attempts = rows.map((row) => {
-      return row.letters.map(({ value }) => value).join('')
-    })
+		if (attempt.length < 5) {
+			toast("a palavra deve ter 5 letras", {
+				style: {
+					padding: "8px 12px",
+					color: "#fff",
+					fontWeight: "600",
+					fontSize: "18px",
+					backgroundColor: "#7C3AED",
+				},
+			});
+			return;
+		}
 
-    const localStorageData = {
-      attempts: attempts,
-      expires: new Date().setHours(24, 0, 0, 0)
-    }
+		if (isNotAcceptedWord(attempt)) {
+			toast("essa palavra não é aceita", {
+				style: {
+					padding: "8px 12px",
+					color: "#fff",
+					fontWeight: "600",
+					fontSize: "18px",
+					backgroundColor: "#7C3AED",
+				},
+			});
+			return;
+		}
 
-    localStorage.setItem('@desvende:attempts', JSON.stringify(localStorageData))
+		const newState = [...rows];
+		newState[activeRowId].attempt = attempt;
+		newState[activeRowId].hasSubmitted = true;
+		setRows(newState);
 
-    if (attempt === removeAccents(answerString)) {
-      setIsFinished(true)
-      setIsCorrect(true)
-      setActiveRowId(7)
-      return
-    }
+		const attempts = rows.map((row) => {
+			return row.letters.map(({ value }) => value).join("");
+		});
 
-    const hasFinished = attempts.every(attempt => attempt.length >= 5);
-    if (hasFinished) setIsFinished(true);
+		const localStorageData = {
+			attempts: attempts,
+			expires: new Date().setHours(24, 0, 0, 0),
+		};
 
-    setActiveRowId((prevState) => prevState + 1)
-  }
+		localStorage.setItem("@desvende:attempts", JSON.stringify(localStorageData));
 
-  const handleKeyDownEvent = useCallback((event: KeyboardEvent) => {
-    if (activeRowId === rows.length) return
+		if (attempt === removeAccents(answerString)) {
+			setIsFinished(true);
+			setIsCorrect(true);
+			setActiveRowId(7);
+			return;
+		}
 
-    const letters = rows[activeRowId].letters
-    const activeLetterIndex = getActiveLetterIndex()
+		const hasFinished = attempts.every((attempt) => attempt.length >= 5);
+		if (hasFinished) setIsFinished(true);
 
-    if (event.code === 'ArrowRight') handleActiveLetter(activeLetterIndex + 1)
+		setActiveRowId((prevState) => prevState + 1);
+	};
 
-    if (event.code === 'ArrowLeft') handleActiveLetter(activeLetterIndex - 1)
+	const handleKeyDownEvent = useCallback(
+		(event: KeyboardEvent) => {
+			if (activeRowId === rows.length) return;
 
-    if (event.code.includes('Key')) {
-      handleChangeLetterValue(activeLetterIndex, event.key.toUpperCase())
+			const letters = rows[activeRowId].letters;
+			const activeLetterIndex = getActiveLetterIndex();
 
-      const nextEmptyLetterIndex = letters.findIndex(({ value }) => !value)
-      if (nextEmptyLetterIndex !== -1) handleActiveLetter(nextEmptyLetterIndex)
-    }
+			if (event.code === "ArrowRight") handleActiveLetter(activeLetterIndex + 1);
 
-    if (event.code === 'Backspace') handleChangeLetterValue(activeLetterIndex, '')
+			if (event.code === "ArrowLeft") handleActiveLetter(activeLetterIndex - 1);
 
-    if (event.code === 'Enter') handleSubmit()
-  }, [activeRowId])
+			if (event.code.includes("Key")) {
+				handleChangeLetterValue(activeLetterIndex, event.key.toUpperCase());
 
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDownEvent)
+				const nextEmptyLetterIndex = letters.findIndex(({ value }) => !value);
+				if (nextEmptyLetterIndex !== -1) handleActiveLetter(nextEmptyLetterIndex);
+			}
 
-    if (isFinished) document.removeEventListener('keydown', handleKeyDownEvent)
-    return () => document.removeEventListener('keydown', handleKeyDownEvent)
-  }, [handleKeyDownEvent, isFinished])
+			if (event.code === "Backspace") handleChangeLetterValue(activeLetterIndex, "");
 
-  useEffect(() => {
-    const localStorageAttempts = localStorage.getItem('@desvende:attempts')
+			if (event.code === "Enter") handleSubmit();
+		},
+		[activeRowId],
+	);
 
-    if (localStorageAttempts) {
-      const { attempts, expires } = JSON.parse(localStorageAttempts) as LocalStorageData;
+	useEffect(() => {
+		document.addEventListener("keydown", handleKeyDownEvent);
 
-      if (!Array.isArray(attempts) || containsNonStringValue(attempts) || containsEmptyValues(attempts)) {
-        localStorage.removeItem('@desvende:attempts')
-        return
-      }
+		if (isFinished) document.removeEventListener("keydown", handleKeyDownEvent);
+		return () => document.removeEventListener("keydown", handleKeyDownEvent);
+	}, [handleKeyDownEvent, isFinished]);
 
-      let wordDoesNotExist = false
+	useEffect(() => {
+		const localStorageAttempts = localStorage.getItem("@desvende:attempts");
 
-      attempts.forEach((attempt) => {
-        if (isNotAcceptedWord(attempt) && attempt !== '') wordDoesNotExist = true
-      })
+		if (localStorageAttempts) {
+			const { attempts, expires } = JSON.parse(localStorageAttempts) as LocalStorageData;
 
-      if (Date.now() >= expires || attempts.length !== 6 || wordDoesNotExist) {
-        localStorage.removeItem('@desvende:attempts')
-        return
-      }
-      const newState: RowsData[] = JSON.parse(JSON.stringify(ROWS));
+			if (!Array.isArray(attempts) || containsNonStringValue(attempts) || containsEmptyValues(attempts)) {
+				localStorage.removeItem("@desvende:attempts");
+				return;
+			}
 
-      const updatedRows = newState.map((row) => {
-        let hasSubmitted = attempts[row.id].length === 5
-        let finalAttempt = attempts[row.id]
+			let wordDoesNotExist = false;
 
-        row.letters.forEach((letter, index) => {
-          const newValue = attempts[row.id].split('')[index]
-          letter.value = newValue
-        })
+			for (const attempt of attempts) {
+				if (isNotAcceptedWord(attempt) && attempt !== "") wordDoesNotExist = true;
+			}
 
-        return {
-          ...row,
-          hasSubmitted,
-          attempt: finalAttempt
-        }
-      });
-      setRows(updatedRows)
+			if (Date.now() >= expires || attempts.length !== 6 || wordDoesNotExist) {
+				localStorage.removeItem("@desvende:attempts");
+				return;
+			}
+			const newState: Row[] = JSON.parse(JSON.stringify(ROWS));
 
-      const activeRowId = attempts.findIndex(attempt => attempt === '');
-      setActiveRowId(activeRowId);
+			const updatedRows = newState.map((row) => {
+				const hasSubmitted = attempts[row.id].length === 5;
+				const finalAttempt = attempts[row.id];
 
-      const isCorrect = attempts.includes(removeAccents(answerString));
-      if (isCorrect) {
-        setIsFinished(true);
-        setIsCorrect(true);
-        setActiveRowId(7);
-      }
+				row.letters.forEach((letter, index) => {
+					const newValue = attempts[row.id].split("")[index];
+					letter.value = newValue;
+				});
 
-      const hasFinished = attempts.every(attempt => attempt.length >= 5);
-      if (attempts.length === 6 && hasFinished) {
-        setIsFinished(true);
-      }
-    }
-  }, [])
+				return {
+					...row,
+					hasSubmitted,
+					attempt: finalAttempt,
+				};
+			});
+			setRows(updatedRows);
 
-  return (
-    <>
-      {isFinished && (
-        <div>
-          {
-            isCorrect ?
-              (
-                <h2 className='text-2xl mb-4 text-center'>
-                  Parabéns, você acertou a palavra do dia!
-                </h2>
-              ) :
-              (
-                <div className='flex flex-col items-center mb-4'>
-                  <h2 className='text-2xl mb-2'>
-                    Você errou a palavra do dia :(
-                  </h2>
-                  <h3 className='text-xl'>Resposta: {answerString}</h3>
-                </div>
-              )
-          }
-          <div className='flex flex-col items-center'>
-            <span className='text-xl text-slate-300'>
-              próxima palavra em:
-            </span>
-            <Countdown
-              date={new Date().setHours(24, 0, 0, 0)}
-              className='text-3xl font-semibold'
-            />
-          </div>
-        </div>
-      )}
-      <div className='flex justify-center items-center flex-col gap-3 mt-4'>
-        {rows.map((row) => {
-          return (
-            <div
-              key={row.id}
-              className='flex justify-center items-center gap-3'
-              data-active={row.id === activeRowId}
-            >
-              {row.letters.map((letter, index) => {
-                let position: "correct" | "wrong" | "near" | undefined
+			const activeRowId = attempts.findIndex((attempt) => attempt === "");
+			setActiveRowId(activeRowId);
 
-                let value = letter.value
+			const isCorrect = attempts.includes(removeAccents(answerString));
+			if (isCorrect) {
+				setIsFinished(true);
+				setIsCorrect(true);
+				setActiveRowId(7);
+			}
 
-                if (row.hasSubmitted && letter.value !== '') {
-                  position = 'wrong'
-                  const attempt = acceptedAnswers.find((word) =>
-                    removeAccents(word) === row.attempt.toLowerCase()
-                  ) as string
+			const hasFinished = attempts.every((attempt) => attempt.length >= 5);
+			if (attempts.length === 6 && hasFinished) {
+				setIsFinished(true);
+			}
+		}
+	}, []);
 
-                  const attemptArray = attempt.toUpperCase().split('')
-                  value = attemptArray[index]
+	return (
+		<>
+			{isFinished && (
+				<div>
+					{isCorrect ? (
+						<h2 className="text-2xl mb-4 text-center">Parabéns, você acertou a palavra do dia!</h2>
+					) : (
+						<div className="flex flex-col items-center mb-4">
+							<h2 className="text-2xl mb-2">Você errou a palavra do dia :(</h2>
+							<h3 className="text-xl">Resposta: {answerString}</h3>
+						</div>
+					)}
+					<div className="flex flex-col items-center">
+						<span className="text-xl text-slate-300">próxima palavra em:</span>
+						<Countdown date={new Date().setHours(24, 0, 0, 0)} className="text-3xl font-semibold" />
+					</div>
+				</div>
+			)}
+			<div className="flex justify-center items-center flex-col gap-3 mt-4">
+				{rows.map((row) => {
+					return (
+						<div key={row.id} className="flex justify-center items-center gap-3" data-active={row.id === activeRowId}>
+							{row.letters.map((letter, index) => {
+								let position: "correct" | "wrong" | "near" | undefined;
 
-                  if (removeAccents(answerString).includes(letter.value)) {
-                    position = 'near'
-                  }
+								let value = letter.value;
 
-                  if (letter.value === removeAccents(answerArray[index])) {
-                    position = 'correct'
-                  }
-                }
+								if (row.hasSubmitted && letter.value !== "") {
+									position = "wrong";
+									const attempt = acceptedAnswers.find(
+										(word) => removeAccents(word) === row.attempt.toLowerCase(),
+									) as string;
 
-                const isActive = row.id === activeRowId
+									const attemptArray = attempt.toUpperCase().split("");
+									value = attemptArray[index];
 
-                return (
-                  <div
-                    key={letter.id}
-                    className={letterStyle({ active: isActive, color: position })}
-                    data-active={letter.active}
-                    onClick={() => handleClickLetter(letter.id, row.id)}
-                  >
-                    {value}
-                  </div>
-                )
-              })}
-            </div>
-          )
-        })}
-      </div>
-    </>
-  )
+									if (removeAccents(answerString).includes(letter.value)) {
+										position = "near";
+									}
+
+									if (letter.value === removeAccents(answerArray[index])) {
+										position = "correct";
+									}
+								}
+
+								const isActive = row.id === activeRowId;
+
+								return (
+									<div
+										key={letter.id}
+										className={letterStyle({ active: isActive, color: position })}
+										data-active={letter.active}
+										onClick={() => handleClickLetter(letter.id, row.id)}
+									>
+										{value}
+									</div>
+								);
+							})}
+						</div>
+					);
+				})}
+			</div>
+		</>
+	);
 }

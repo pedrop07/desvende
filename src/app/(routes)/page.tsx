@@ -1,17 +1,17 @@
-import { Header } from '@/components/header';
-import { Rows } from '@/components/rows';
-import { generateAnswer } from '@/utils/generateAnswer';
+import { Header } from "@/components/header";
+import { Rows } from "@/components/rows";
+import { generateAnswer } from "@/utils/generateAnswer";
 
 export default async function Home() {
-  const answer = generateAnswer()
+	const answer = generateAnswer();
 
-  const answerString = answer
-  const answerArray = answer?.split('');
+	const answerString = answer;
+	const answerArray = answer?.split("");
 
-  return (
-    <div>
-      <Header />
-      <Rows answerArray={answerArray} answerString={answerString} />
-    </div>
-  )
+	return (
+		<div>
+			<Header />
+			<Rows answerArray={answerArray} answerString={answerString} />
+		</div>
+	);
 }

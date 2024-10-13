@@ -1,9 +1,9 @@
 import { Header } from '@/components/header';
 import { Rows } from '@/components/rows';
-import { possibleAnswers } from '../../../constants/possible-answers';
+import { generateAnswer } from '@/utils/generateAnswer';
 
 export default async function Home() {
-  const answer = possibleAnswers[Math.floor(Math.random() * 914)].toUpperCase()
+  const answer = generateAnswer()
 
   const answerString = answer
   const answerArray = answer?.split('');

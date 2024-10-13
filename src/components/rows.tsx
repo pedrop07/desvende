@@ -7,8 +7,8 @@ import toast from 'react-hot-toast';
 import Countdown from 'react-countdown';
 import { ROWS } from '@/constants/rows';
 import { RowsData } from '@/types/rows';
-import { extensiveDictionary } from '../../extensive-dictionary';
-import { wordExistsInDictionary } from '@/utils/wordExistsInDictionary';
+import { acceptedAnswers } from '../../constants/accepted-answers';
+import { isNotAcceptedWord } from '@/utils/isNotAcceptedWord';
 
 function containsNonStringValue(array: string[]) {
   for (let i = 0; i < array.length; i++) {
@@ -108,7 +108,7 @@ export function Rows({ answerArray, answerString }: RowProps) {
       return;
     }
 
-    if (!wordExistsInDictionary(attempt)) {
+    if (isNotAcceptedWord(attempt)) {
       toast('essa palavra não é aceita', {
         style: {
           padding: '8px 12px',
@@ -189,9 +189,7 @@ export function Rows({ answerArray, answerString }: RowProps) {
       let wordDoesNotExist = false
 
       attempts.forEach((attempt) => {
-        if (!wordExistsInDictionary(attempt) && attempt !== '') {
-          wordDoesNotExist = true
-        }
+        if (isNotAcceptedWord(attempt) && attempt !== '') wordDoesNotExist = true
       })
 
       if (Date.now() >= expires || attempts.length !== 6 || wordDoesNotExist) {
@@ -280,7 +278,7 @@ export function Rows({ answerArray, answerString }: RowProps) {
 
                 if (row.hasSubmitted && letter.value !== '') {
                   position = 'wrong'
-                  const attempt = extensiveDictionary.find((word) =>
+                  const attempt = acceptedAnswers.find((word) =>
                     removeAccents(word) === row.attempt.toLowerCase()
                   ) as string
 

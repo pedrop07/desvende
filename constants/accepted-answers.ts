@@ -1,4 +1,4 @@
-export const extensiveDictionary = [
+export const acceptedAnswers = [
   "sagaz", "âmago", "teste", "êxito", "termo", "mexer", "nobre", "senso", "afeto", "algoz", "ética", "plena", "mútua",
   "tênue", "fazer", "assim", "sutil", "vigor", "aquém", "porém", "fosse", "sanar", "audaz", "poder", "ideia", "cerne",
   "inato", "moral", "desde", "sobre", "justo", "muito", "honra", "torpe", "sonho", "fútil", "razão", "ícone", "etnia",

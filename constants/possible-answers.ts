@@ -1,4 +1,4 @@
-export const dictionaryOfPossibleAnswers = [
+export const possibleAnswers = [
   "abrir", "abriu", "abuso", "acaso", "acesa", "aceso", "achar", "acima", "adeus", "adiar", "advir", "advém", "afago",
   "afeto", "afins", "afora", "agora", "agudo", "ainda", "ajuda", "alado", "algoz", "algum", "aliás", "alude", "aluno",
   "amada", "amado", "ambas", "ambos", "amena", "ameno", "amiga", "amigo", "amplo", "anais", "anciã", "andar", "anelo",

@@ -9,7 +9,9 @@ export function Header() {
   return (
     <header className={clsx(baloo2.className, 'text-4xl font-semibold flex justify-center mt-16 mb-14')}>
       <div className='flex items-center gap-4'>
-        DESVENDE
+        <h1>
+          DESVENDE
+        </h1>
         <Link
           href={'https://github.com/pedrop07/desvende'}
           target='_blank'

@@ -10,6 +10,6 @@ export function generateAnswer() {
 	const dateSum = day + month + year;
 
 	const index = dateSum % possibleAnswers.length;
-	const answers = possibleAnswers[index];
-	return answers.toUpperCase();
+	const answer = possibleAnswers[index];
+	return answer.toUpperCase();
 }

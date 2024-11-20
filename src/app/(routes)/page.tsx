@@ -1,8 +1,10 @@
+"use client";
+
 import { Header } from "@/components/header";
 import { Rows } from "@/components/rows";
 import { generateAnswer } from "@/utils/generateAnswer";
 
-export default async function Home() {
+export default function Home() {
 	const answer = generateAnswer();
 
 	const answerString = answer;
